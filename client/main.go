@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -15,8 +16,18 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
 	}
-	fmt.Fprintf(w, validtoken)
-
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://localhost:9001/", nil)
+	req.Header.Set("Token", validtoken)
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Errorf("response  failed")
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Printf("body failed")
+	}
+	fmt.Fprintf(w, string(body))
 }
 func handlerequest() {
 	http.HandleFunc("/", HomePage)
